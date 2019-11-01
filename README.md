@@ -1,5 +1,4 @@
-# CS491_Project3 :dog:
-Neural Networks
+# Neural Networks :dog:
 
 ## Teammates
 Kyle Respicio, Josh Hosea
