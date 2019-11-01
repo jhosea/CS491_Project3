@@ -2,5 +2,13 @@ import numpy as np
 import sklearn as skeet
 
 
-def calculate_loss(model, X, Y):
-    return "iwi"
+def calculate_loss(model, X, y):
+
+	
+
+    return 
+
+def predict(model, x):
+
+
+def build_model(X, y, nn_hdim, num_passes=20000, print_loss=False):
