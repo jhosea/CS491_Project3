@@ -1,5 +1,5 @@
 import numpy as np
-import sklearn as skeet
+import sklearn
 import math
 
 
@@ -24,12 +24,24 @@ def calculate_loss(model, X, y):
 
     sum = 0
 
-    for i in range(N):
-        for j in range(C):
-            prediction = predict(model, X[i])
-            sum += prediction * np.log(y[i])
+    a = np.matmul(x, model["W1"]) + model["b1"]
+    h = np.tanh(a)
+    z = np.matmul(h, (model["W2"])) + model["b2"]
+    probability = np.exp(z) / np.sum(np.exp(z), axis=1, keepdims=True)
+    corect_logprobs = -np.log(probability[range(N), y])
+    data_loss = np.sum(corect_logprobs)
 
-    return (-1/N) * sum
+    return 1/N * data_loss
+
+# for i in range(N):
+#     for j in range(C):
+#         prediction = predict(model, X[i])
+#         sum += prediction * np.log(y[i])
+
+#     corect_logprobs = -np.log(probs[range(num_examples), y])
+# data_loss = np.sum(corect_logprobs)
+
+# return (-1/N) * sum
 
 
 '''
@@ -42,12 +54,13 @@ Parameters:
 
 def predict(model, x):
 
-    a = x.dot(model["W1"]) + model["b1"]
+    a = np.matmul(x, model["W1"]) + model["b1"]
     h = np.tanh(a)
-    z = h * model["W2"] + model["b2"]
-    prediction = np.exp(z) / np.sum(np.exp(z))
+    z = np.matmul(h, model["W2"]) + model["b2"]
+    probability = np.exp(z) / np.sum(np.exp(z), axis=1, keepdims=True)
 
-    return sum(prediction)
+    # Either 0 or 1 class. We return the one with the largest probability
+    return np.argmax(probability, axis=1)
 
 
 '''
@@ -63,4 +76,50 @@ Parameters:
 
 def build_model(X, y, nn_hdim, num_passes=20000, print_loss=False):
 
-    return
+    sampleSize = np.size(X, axis=0)
+    learningRate = 0.01
+
+    # Model is a dictionary
+    model = {}
+
+    # Initialize with random weights and bias can be zero
+    np.random.seed(0)
+    model['W1'] = np.random.randn(2, nn_hdim) / np.sqrt(2)
+    model['W2'] = np.random.randn(nn_hdim, 2) / np.sqrt(nn_hdim)
+    model['b1'] = np.zeros((1, nn_hdim))
+    model['b2'] = np.zeros((1, 2))
+
+    for i in range(num_passes):
+
+        # Go through the current model
+        a = np.matmul(X, model["W1"]) + model["b1"]
+        h = np.tanh(a)
+        z = np.matmul(h, model["W2"]) + model["b2"]
+        probability = np.exp(z) / np.sum(np.exp(z), axis=1, keepdims=True)
+
+        # Perform Backpropagation
+        delta = probability
+        delta[range(sampleSize), y] -= 1
+
+        # dyhat = probability
+        dyhat = delta
+        da = (1 - h**2) * np.matmul(dyhat, np.transpose(model['W2']))
+
+        dw2 = np.matmul(np.transpose(h), dyhat)
+        db2 = dyhat
+
+        dw1 = np.matmul(np.transpose(X), (da))
+        db1 = da
+
+        # Update Model
+        model['W1'] -= learningRate * dw1
+        model['W2'] -= learningRate * dw2
+        model['b1'] -= learningRate * np.sum(db1, axis=0)
+        model['b2'] -= learningRate * np.sum(db2, axis=0)
+
+        # Optional Print and only print about 20 times
+        if print_loss and i % 1000 == 0:
+            print("Loss after iteration {}: {}".format(
+                i, calculate_loss(model, X, y)))
+
+    return model
