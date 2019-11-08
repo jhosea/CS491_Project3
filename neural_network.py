@@ -12,27 +12,43 @@ Parameters:
 Returns:
 	Integer loss
 '''
+
+
 def calculate_loss(model, X, y):
 
+    # Number of samples
+    N = np.size(X, axis=0)
 
+    # Number of classes (features)
+    C = np.size(X, axis=1)
 
-    return 
+    sum = 0
+
+    for i in range(N):
+        for j in range(C):
+            prediction = predict(model, X[i])
+            sum += prediction * np.log(y[i])
+
+    return (-1/N) * sum
 
 
 '''
 Helper function to predict an ouput (0 or 1)
 Model is the current version of the model {'W1': W1, 'b1': b1, 'W2': W2, 'b2': b2} (dictionary)
 Parameters:
-	x -> np.array sample without a label
+	x -> np.array is one sample without a label
 '''
+
+
 def predict(model, x):
 
-	a = x * model["W1"] + model["b1"]
-	h = np.tanh(a)
-	z = h * model["W2"] + model["b2"]
-	prediction = np.exp(z) / np.sum(np.exp(z))
+    a = x.dot(model["W1"]) + model["b1"]
+    h = np.tanh(a)
+    z = h * model["W2"] + model["b2"]
+    prediction = np.exp(z) / np.sum(np.exp(z))
 
-	return sum(prediction)
+    return sum(prediction)
+
 
 '''
 This function learns parameters for the neural netwrok and returns the model.
@@ -43,6 +59,8 @@ Parameters:
 	num_passes -> integer number of passes through the training data for gradient deescent
 	print_loss -> Boolean value, if true, prints the loss every 1000 iterations
 '''
+
+
 def build_model(X, y, nn_hdim, num_passes=20000, print_loss=False):
 
-
+    return
